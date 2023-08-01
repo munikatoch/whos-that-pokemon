@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Serilog;
 using Serilog.Events;
-using WhosThatPokemon.Interfaces.Log;
+using WhosThatPokemon.Interfaces.Logger;
 
 namespace WhosThatPokemon.Logging
 {

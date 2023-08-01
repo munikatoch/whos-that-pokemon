@@ -1,15 +1,13 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Serilog.Events;
 using WhosThatPokemon.Interfaces.Config;
-using WhosThatPokemon.Interfaces.Log;
+using WhosThatPokemon.Interfaces.Logger;
 using WhosThatPokemon.Interfaces.Repository;
 using WhosThatPokemon.Interfaces.Service;
 using WhosThatPokemon.Model;
 using WhosThatPokemon.Model.DataAccess;
 using WhosThatPokemon.Model.Enum;
-using WhosThatPokemon.Repository.MongoDB;
 using WhosThatPokemon.Services.Common;
 
 namespace WhosThatPokemon.Module.Slash

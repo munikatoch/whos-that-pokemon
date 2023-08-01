@@ -1,10 +1,9 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Serilog.Events;
-using System.Threading.Channels;
 using WhosThatPokemon.Interfaces.Config;
 using WhosThatPokemon.Interfaces.Discord;
-using WhosThatPokemon.Interfaces.Log;
+using WhosThatPokemon.Interfaces.Logger;
 using WhosThatPokemon.Interfaces.Repository;
 
 namespace WhosThatPokemon.Services.Discord

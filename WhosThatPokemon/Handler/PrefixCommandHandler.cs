@@ -2,13 +2,9 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Serilog.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using WhosThatPokemon.Interfaces.Discord;
-using WhosThatPokemon.Interfaces.Log;
+using WhosThatPokemon.Interfaces.Logger;
 using WhosThatPokemon.Interfaces.Repository;
 using WhosThatPokemon.Interfaces.Service;
 using WhosThatPokemon.Model;
@@ -53,7 +49,7 @@ namespace WhosThatPokemon.Handler
             _client.MessageReceived += MessageReceivedEvent;
         }
 
-        private async Task MessageReceivedEvent(SocketMessage socketMessage)
+        private Task MessageReceivedEvent(SocketMessage socketMessage)
         {
             if (socketMessage != null && socketMessage is SocketUserMessage message)
             {
@@ -62,6 +58,7 @@ namespace WhosThatPokemon.Handler
                     await HandleCommandAsync(message);
                 });
             }
+            return Task.CompletedTask;
         }
 
         private async Task HandleCommandAsync(SocketUserMessage message)

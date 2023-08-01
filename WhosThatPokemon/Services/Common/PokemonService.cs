@@ -2,7 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.ML;
 using Microsoft.ML;
-using WhosThatPokemon.Interfaces.Log;
+using WhosThatPokemon.Interfaces.Logger;
 using WhosThatPokemon.Interfaces.Repository;
 using WhosThatPokemon.Interfaces.Service;
 using WhosThatPokemon.Model;

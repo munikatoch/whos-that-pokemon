@@ -2,15 +2,9 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Serilog.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WhosThatPokemon.Config;
 using WhosThatPokemon.Interfaces.Config;
 using WhosThatPokemon.Interfaces.Discord;
-using WhosThatPokemon.Interfaces.Log;
+using WhosThatPokemon.Interfaces.Logger;
 using WhosThatPokemon.Module.Slash;
 
 namespace WhosThatPokemon.Handler

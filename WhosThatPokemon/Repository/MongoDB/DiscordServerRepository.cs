@@ -1,7 +1,6 @@
 ﻿using MongoDB.Driver;
 using Serilog.Events;
-using System.Reflection.Metadata;
-using WhosThatPokemon.Interfaces.Log;
+using WhosThatPokemon.Interfaces.Logger;
 using WhosThatPokemon.Interfaces.Repository;
 using WhosThatPokemon.Model;
 using WhosThatPokemon.Model.DataAccess;

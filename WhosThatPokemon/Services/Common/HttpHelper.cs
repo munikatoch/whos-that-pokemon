@@ -1,5 +1,5 @@
 ﻿using Serilog.Events;
-using WhosThatPokemon.Interfaces.Log;
+using WhosThatPokemon.Interfaces.Logger;
 using WhosThatPokemon.Interfaces.Service;
 
 namespace WhosThatPokemon.Services.Common

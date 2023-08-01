@@ -1,8 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Serilog.Events;
 using System.IO.Compression;
-using WhosThatPokemon.Interfaces.Log;
+using WhosThatPokemon.Interfaces.Logger;
 using WhosThatPokemon.Model;
 using WhosThatPokemon.Services.Common;
 
