@@ -69,17 +69,18 @@ namespace WhosThatPokemon.Module.Slash
                     int nonPremiumUserCollectionLimit = _appConfig.GetValue("UserPokemonCollectionLimit", 0);
                     await RespondAsync(string.Format(Constants.BotUserAddPokemonCollectionnMessage, nonPremiumUserCollectionLimit));
                     List<Pokemon> addedPokemon = await _userRepository.UpsertUserPokemonCollection(Context.User.Id, collection).ConfigureAwait(false);
-                    Embed pokemonsAddedEmbed = DiscordEmbedBuilder.BuildAddedPokemonEmbed(addedPokemon);
+                    Embed pokemonsAddedEmbed = DiscordEmbedBuilder.BuildAddedPokemonEmbed(addedPokemon, operation);
                     await Context.Channel.SendMessageAsync(embed: pokemonsAddedEmbed);
                 }
                 else
                 {
                     await RespondAsync(Constants.BotUserDeletePokemonCollectionnMessage);
-                    await _userRepository.RemoveUserPokemonCollection(Context.User.Id, collection).ConfigureAwait(false);
-
+                    List<Pokemon> pokemonsRemoved = await _userRepository.RemoveUserPokemonCollection(Context.User.Id, collection);
+                    Embed pokemonsAddedEmbed = DiscordEmbedBuilder.BuildAddedPokemonEmbed(pokemonsRemoved, operation);
+                    await Context.Channel.SendMessageAsync(embed: pokemonsAddedEmbed);
                 }
             });
-            await _logger.CommandUsedLogAsync("GlobalInteractionModule", "collection", Context.Guild.Id, Context.Channel.Id, Context.User.Id).ConfigureAwait(false);
+            await _logger.CommandUsedLogAsync("GlobalInteractionModule", $"collection {operation}", Context.Guild.Id, Context.Channel.Id, Context.User.Id).ConfigureAwait(false);
         }
 
         [SlashCommand("rareping", "Set pokemon rare ping role")]

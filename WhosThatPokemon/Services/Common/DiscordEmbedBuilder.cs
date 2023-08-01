@@ -7,6 +7,7 @@ using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using WhosThatPokemon.Model.DataAccess;
+using WhosThatPokemon.Model.Enum;
 
 namespace WhosThatPokemon.Services.Common
 {
@@ -77,11 +78,18 @@ namespace WhosThatPokemon.Services.Common
             return embedBuilder.Build();
         }
 
-        public static Embed BuildAddedPokemonEmbed(List<Pokemon> addedPokemon)
+        public static Embed BuildAddedPokemonEmbed(List<Pokemon> addedPokemon, PokemonCollectionOperation operation)
         {
             EmbedBuilder embedBuilder = new EmbedBuilder();
 
-            embedBuilder.Title = "Pokemons added to collection are:";
+            if(operation == PokemonCollectionOperation.Add)
+            {
+                embedBuilder.Title = "Pokemons added to collection are:";
+            }
+            else
+            {
+                embedBuilder.Title = "Pokemons removed from collection are:";
+            }
             StringBuilder sb = new StringBuilder();
             foreach (var pokemon in addedPokemon)
             {

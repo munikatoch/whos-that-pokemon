@@ -42,15 +42,16 @@ namespace WhosThatPokemon.Repository.MongoDB
             return pokemons;
         }
 
-        public async Task RemoveUserPokemonCollection(ulong userId, string collection)
+        public async Task<List<Pokemon>> RemoveUserPokemonCollection(ulong userId, string collection)
         {
             string[] pokemonNames = collection.Split(",").Select(x => x.Trim()).ToArray();
-            int[] pokemonIds = (await _pokemonRepository.GetPokemonByName(pokemonNames)).Select(x => x.PokemonId).ToArray();
+            List<Pokemon> pokemons = (await _pokemonRepository.GetPokemonByName(pokemonNames)).ToList();
 
-            if(pokemonIds.Length > 0)
+            if(pokemons.Count > 0)
             {
                 try
                 {
+                    int[] pokemonIds = pokemons.Select(x => x.PokemonId).ToArray();
                     FilterDefinition<DiscordUser> filter = Builders<DiscordUser>.Filter.Eq(u => u.DiscordUserId, userId);
 
                     UpdateDefinition<DiscordUser> updatedCollection = Builders<DiscordUser>.Update.PullAll(x => x.PokemonCollection, pokemonIds);
@@ -65,6 +66,7 @@ namespace WhosThatPokemon.Repository.MongoDB
                     throw;
                 }
             }
+            return pokemons;
         }
 
         public async Task<DiscordUser> GetUserByUserId(ulong userId)

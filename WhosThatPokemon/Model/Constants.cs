@@ -17,7 +17,7 @@ namespace WhosThatPokemon.Model
         public static readonly string MlModelOutputFileName = "trainedmodel.zip";
         public static readonly string MlModelFileOutputPath = Path.Combine("Assets", MlModelOutputFileName);
 
-        public static readonly string BotVersion = "2.0";
+        public static readonly string BotVersion = "2.1";
         public static readonly ulong PokemonBotAuthorId = 669228505128501258;
 
         public static readonly string BotVersionMessage = $"Bot version: {BotVersion}";

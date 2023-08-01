@@ -10,7 +10,7 @@ namespace WhosThatPokemon.Interfaces.Repository
     public interface IUserRepository
     {
         Task<List<Pokemon>> UpsertUserPokemonCollection(ulong userId, string collection);
-        Task RemoveUserPokemonCollection(ulong userId, string collection);
+        Task<List<Pokemon>> RemoveUserPokemonCollection(ulong userId, string collection);
         Task<DiscordUser> GetUserByUserId(ulong userId);
         Task<List<DiscordUser>> GetPokemonCollectingUser(int pokemonId);
     }
