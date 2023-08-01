@@ -56,15 +56,35 @@ namespace WhosThatPokemon.Services.Common
         {
             var embedBuilder = new EmbedBuilder();
             embedBuilder.Title = "All available bot commands are following:";
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("The format of command is [command] - [Description] - [alias]");
-            sb.AppendLine("[predict] - [Predict pokemon with the given URL (Note: Only use for pokemon bot for accurate results)] - [p]");
-            sb.AppendLine("[collection] - [Add, Remove or List your collection (Note: Available command options are [list, add, remove])] - [collect, cl, c]");
-            sb.AppendLine("[rareping] - [Set rare ping role] - [rp]");
-            sb.AppendLine("[regionalping] - [Set regional ping role] - [rgp]");
-            sb.AppendLine("[shadowping] - [Set shadow ping role] - [sp]");
-            sb.AppendLine("Note: For role mention only one type of role will be mentioned in the following decreasing precedence Rare, Shadow, Regional");
-            embedBuilder.Description = sb.ToString();
+            embedBuilder.Description = "Note: For role mention only one type of role will be mentioned in the following decreasing precedence Rare, Shadow, Regional";
+            StringBuilder commands = new StringBuilder();
+            StringBuilder description = new StringBuilder();
+            StringBuilder alias = new StringBuilder();
+
+            commands.AppendLine("[predict]");
+            commands.AppendLine("[collection]");
+            commands.AppendLine("[rareping]");
+            commands.AppendLine("[regionalping]");
+            commands.AppendLine("[shadowping]");
+            commands.AppendLine("[premium]");
+
+            description.AppendLine("[Predict pokemon with the given URL (Note: Only use for pokemon bot for accurate results)]");
+            description.AppendLine("[Add, Remove or List your collection (Note: Available command options are {list, add, remove})]");
+            description.AppendLine("[Set rare ping role]");
+            description.AppendLine("[Set regional ping role]");
+            description.AppendLine("[Set shadow ping role]");
+            description.AppendLine("[Donate to whos that pokemon bot]");
+
+            alias.AppendLine("[p]");
+            alias.AppendLine("[collect, cl, c]");
+            alias.AppendLine("[rp]");
+            alias.AppendLine("[rgp]");
+            alias.AppendLine("[sp]");
+            alias.AppendLine("[patreon]");
+
+            embedBuilder.AddField("[command]", commands.ToString(), true);
+            embedBuilder.AddField("[Description]", description.ToString(), true);
+            embedBuilder.AddField("[Alias]", alias.ToString(), true);
             return embedBuilder.Build();
         }
 
@@ -72,9 +92,7 @@ namespace WhosThatPokemon.Services.Common
         {
             var embedBuilder = new EmbedBuilder();
             embedBuilder.Title = "Donate to Whos That Pokemon Bot for special benefits!";
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("patreon.com/Cornpuff");
-            embedBuilder.Description = sb.ToString();
+            embedBuilder.Url = "https://www.patreon.com/Cornpuff";
             return embedBuilder.Build();
         }
 
