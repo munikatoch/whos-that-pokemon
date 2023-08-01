@@ -23,7 +23,7 @@ namespace WhosThatPokemon.Model
         public static readonly string BotVersionMessage = $"Bot version: {BotVersion}";
         public static readonly string BotTotalMemberMessage = "Total Number servers: {0}";
         public static readonly string BotGetLogMessage = "Here are the logs";
-        public static readonly string BotUserAddPokemonCollectionnMessage = "Pokemons added Successfully. If you are not a premium user then only {0} pokemons will be added. Please use get collection to check your collection list";
+        public static readonly string BotUserAddPokemonCollectionnMessage = "Adding pokemons to collection. If you are not a premium user then only {0} pokemons will be added. Please use 'collection list' to check your collection list";
         public static readonly string BotUserDeletePokemonCollectionnMessage = "Pokemons Removed Successfully";
         public static readonly string BotSetRarePingMessage = "Rare ping set for role {0}";
         public static readonly string BotSetRegionalPingMessage = "Regional ping set for role {0}";

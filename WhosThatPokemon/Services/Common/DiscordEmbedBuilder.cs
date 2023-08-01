@@ -67,12 +67,26 @@ namespace WhosThatPokemon.Services.Common
             return embedBuilder.Build();
         }
 
-        internal static Embed BuildPremiumCommandEmbed()
+        public static Embed BuildPremiumCommandEmbed()
         {
             var embedBuilder = new EmbedBuilder();
             embedBuilder.Title = "Donate to Whos That Pokemon Bot for special benefits!";
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("patreon.com/Cornpuff");
+            embedBuilder.Description = sb.ToString();
+            return embedBuilder.Build();
+        }
+
+        public static Embed BuildAddedPokemonEmbed(List<Pokemon> addedPokemon)
+        {
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+
+            embedBuilder.Title = "Pokemons added to collection are:";
+            StringBuilder sb = new StringBuilder();
+            foreach (var pokemon in addedPokemon)
+            {
+                sb.AppendLine(TextUtil.ChangeToPascalCase(pokemon.PokemonName));
+            }
             embedBuilder.Description = sb.ToString();
             return embedBuilder.Build();
         }

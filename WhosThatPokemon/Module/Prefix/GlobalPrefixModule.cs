@@ -70,7 +70,9 @@ namespace WhosThatPokemon.Module.Prefix
                 {
                     int nonPremiumUserCollectionLimit = _appConfig.GetValue("UserPokemonCollectionLimit", 0);
                     await Context.Message.ReplyAsync(string.Format(Constants.BotUserAddPokemonCollectionnMessage, nonPremiumUserCollectionLimit));
-                    await _userRepository.UpsertUserPokemonCollection(Context.User.Id, string.Join(" ", collection)).ConfigureAwait(false);
+                    List<Pokemon> addedPokemon = await _userRepository.UpsertUserPokemonCollection(Context.User.Id, string.Join(" ", collection));
+                    Embed pokemonsAddedEmbed = DiscordEmbedBuilder.BuildAddedPokemonEmbed(addedPokemon);
+                    await Context.Channel.SendMessageAsync(embed: pokemonsAddedEmbed);
                 }
                 else
                 {

@@ -20,6 +20,7 @@ namespace WhosThatPokemon.Repository.MongoDB
         {
             try
             {
+                pokemonsName = pokemonsName.Select(x => x.ToLower()).ToArray();
                 FilterDefinition<Pokemon> filter = Builders<Pokemon>.Filter.In(r => r.PokemonName, pokemonsName);
                 List<Pokemon> result = await _collection.Find(filter).ToListAsync();
                 return result;
