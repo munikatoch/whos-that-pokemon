@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{AE8802E8-DE85-4CB2-93B8-3AC59DFC4EA3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{672AC7C7-7C2D-4C48-A2D4-94E09A4CBE13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhosThatPokemon", "WhosThatPokemon\WhosThatPokemon.csproj", "{C147FAF9-F023-4D90-A801-23A6F69E443E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C147FAF9-F023-4D90-A801-23A6F69E443E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C147FAF9-F023-4D90-A801-23A6F69E443E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C147FAF9-F023-4D90-A801-23A6F69E443E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C147FAF9-F023-4D90-A801-23A6F69E443E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C147FAF9-F023-4D90-A801-23A6F69E443E} = {AE8802E8-DE85-4CB2-93B8-3AC59DFC4EA3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BD299F79-2730-4796-B109-713E94FCE180}
+	EndGlobalSection
+EndGlobal
