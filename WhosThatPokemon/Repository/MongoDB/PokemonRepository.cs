@@ -47,12 +47,12 @@ namespace WhosThatPokemon.Repository.MongoDB
             return null;
         }
 
-        public async Task<Pokemon> GetPokemonById(int pokemonsId)
+        public async Task<Pokemon> GetPokemonById(int pokemonsId, bool updateCount)
         {
             try
             {
                 FilterDefinition<Pokemon> filter = Builders<Pokemon>.Filter.Eq(r => r.PokemonId, pokemonsId);
-                UpdateDefinition<Pokemon> update = Builders<Pokemon>.Update.Inc(r => r.SpawnCount, 1);
+                UpdateDefinition<Pokemon> update = Builders<Pokemon>.Update.Inc(r => r.SpawnCount, updateCount ? 1 : 0);
                 Pokemon result = await _collection.FindOneAndUpdateAsync(filter, update);
                 return result;
             }

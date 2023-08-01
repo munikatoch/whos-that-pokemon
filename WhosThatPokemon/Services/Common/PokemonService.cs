@@ -31,7 +31,7 @@ namespace WhosThatPokemon.Services.Common
         {
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.Title = "Pokemon Prediction";
-            Pokemon? pokemon = await GetPokemonImageAndPredictPokemon(url);
+            Pokemon? pokemon = await GetPokemonImageAndPredictPokemon(url, false);
             if(pokemon != null)
             {
                 await DiscordEmbedBuilder.BuildPokemonPredictionModel(embedBuilder, pokemon);
@@ -44,7 +44,7 @@ namespace WhosThatPokemon.Services.Common
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.Title = "Pokemon Prediction";
             embedBuilder.Color = color;
-            Pokemon? pokemon = await GetPokemonImageAndPredictPokemon(url);
+            Pokemon? pokemon = await GetPokemonImageAndPredictPokemon(url, true);
             if (pokemon != null)
             {
                 await DiscordEmbedBuilder.BuildPokemonPredictionModel(embedBuilder, pokemon);
@@ -56,7 +56,7 @@ namespace WhosThatPokemon.Services.Common
             };
         }
 
-        private async Task<Pokemon?> GetPokemonImageAndPredictPokemon(string url)
+        private async Task<Pokemon?> GetPokemonImageAndPredictPokemon(string url, bool updateCount)
         {
             byte[]? imageContent = await _httpHelper.GetImageContent(url, HttpClientType.Pokemon.ToString());
             if (imageContent != null && imageContent.Length > 0)
@@ -71,7 +71,7 @@ namespace WhosThatPokemon.Services.Common
                 {
                     return null;
                 }
-                Pokemon pokemon = await _pokemonRepository.GetPokemonById(prediction.PredictedPokemonLabel);
+                Pokemon pokemon = await _pokemonRepository.GetPokemonById(prediction.PredictedPokemonLabel, updateCount);
                 if (prediction?.Score != null && prediction.Score.Max() * 100 < 50)
                 {
                     await _logger.FileLogAsync(new { Url = url, PredictedName = pokemon.PokemonName, Score = prediction.Score.Max() * 100 }, Serilog.Events.LogEventLevel.Error).ConfigureAwait(false);

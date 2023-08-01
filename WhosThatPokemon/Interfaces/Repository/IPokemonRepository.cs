@@ -11,6 +11,6 @@ namespace WhosThatPokemon.Interfaces.Repository
     {
         Task<List<Pokemon>> GetPokemonByName(string[] pokemonsName);
         Task<List<Pokemon>> GetPokemonById(int[] pokemonsId);
-        Task<Pokemon> GetPokemonById(int pokemonsId);
+        Task<Pokemon> GetPokemonById(int pokemonsId, bool updateCount);
     }
 }
