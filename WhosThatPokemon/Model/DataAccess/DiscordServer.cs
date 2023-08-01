@@ -24,6 +24,11 @@ namespace WhosThatPokemon.Model.DataAccess
         [BsonDefaultValue(0)]
         public ulong RegionalPingId { get; set; }
 
+        [BsonElement("starboard_channel_id")]
+        [BsonRepresentation(BsonType.Int64)]
+        [BsonDefaultValue(0)]
+        public ulong StarboardChannelId { get; set; }
+
         [BsonElement("is_premium")]
         [BsonRepresentation(BsonType.Boolean)]
         [BsonDefaultValue(false)]

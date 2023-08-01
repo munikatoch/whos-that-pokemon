@@ -38,7 +38,7 @@ namespace WhosThatPokemon.Model.DataAccess
 
         [BsonElement("spawn_count")]
         [BsonRepresentation(BsonType.Int64)]
-        [BsonDefaultValue(0)]
+        [BsonDefaultValue(0L)]
         public long SpawnCount { get; set; }
     }
 }
