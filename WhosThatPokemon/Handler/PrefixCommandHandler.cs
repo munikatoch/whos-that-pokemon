@@ -108,15 +108,15 @@ namespace WhosThatPokemon.Handler
                         if ((predictedPokemon.IsRare || predictedPokemon.IsShadow || predictedPokemon.IsRegional) && channel?.Guild != null)
                         {
                             DiscordServer server = await _serverRepository.GetMentionRoles(channel.Guild.Id);
-                            if (predictedPokemon.IsRare)
+                            if (predictedPokemon.IsRare && server.RarePingId != 0)
                             {
                                 roleMention = MentionUtils.MentionRole(server.RarePingId);
                             }
-                            else if (predictedPokemon.IsShadow)
+                            else if (predictedPokemon.IsShadow && server.ShadowPingId != 0)
                             {
                                 roleMention = MentionUtils.MentionRole(server.ShadowPingId);
                             }
-                            else
+                            else if(server.RegionalPingId != 0)
                             {
                                 roleMention = MentionUtils.MentionRole(server.RegionalPingId);
                             }
