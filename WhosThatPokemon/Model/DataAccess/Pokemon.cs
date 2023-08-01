@@ -35,5 +35,10 @@ namespace WhosThatPokemon.Model.DataAccess
         [BsonRepresentation(BsonType.Boolean)]
         [BsonDefaultValue(false)]
         public bool IsRegional { get; set; }
+
+        [BsonElement("spawn_count")]
+        [BsonRepresentation(BsonType.Int64)]
+        [BsonDefaultValue(0)]
+        public long SpawnCount { get; set; }
     }
 }

@@ -24,11 +24,11 @@ namespace WhosThatPokemon.Handler
         private readonly IUserRepository _userRepository;
 
         public PrefixCommandHandler(
-            DiscordShardedClient client, 
-            CommandService commandService, 
-            IAppLogger logger, 
-            IServiceProvider serviceProvider, 
-            IPokemonService pokemonService, 
+            DiscordShardedClient client,
+            CommandService commandService,
+            IAppLogger logger,
+            IServiceProvider serviceProvider,
+            IPokemonService pokemonService,
             IDiscordServerRepository serverRepository,
             IUserRepository userRepository
             )
@@ -97,12 +97,12 @@ namespace WhosThatPokemon.Handler
             if (embed?.Image != null && embed.Image.HasValue)
             {
                 DiscordPokemonPrediction predictedPokemonResult = await _pokemonService.PredictSpawnedPokemon(embed.Image.Value.Url, embed.Color);
-                if(predictedPokemonResult?.Pokemon != null)
+                if (predictedPokemonResult?.Pokemon != null)
                 {
                     Pokemon predictedPokemon = predictedPokemonResult.Pokemon;
                     string roleMention = string.Empty;
 
-                    if(message.Channel is SocketGuildChannel)
+                    if (message.Channel is SocketGuildChannel)
                     {
                         SocketGuildChannel? channel = message.Channel as SocketGuildChannel;
                         if ((predictedPokemon.IsRare || predictedPokemon.IsShadow || predictedPokemon.IsRegional) && channel?.Guild != null)
@@ -116,23 +116,20 @@ namespace WhosThatPokemon.Handler
                             {
                                 roleMention = MentionUtils.MentionRole(server.ShadowPingId);
                             }
-                            else if(server.RegionalPingId != 0)
+                            else if (server.RegionalPingId != 0)
                             {
                                 roleMention = MentionUtils.MentionRole(server.RegionalPingId);
                             }
                         }
-                        else
+                        List<DiscordUser> users = await _userRepository.GetPokemonCollectingUser(predictedPokemon.PokemonId);
+                        if (users != null && users.Count > 0)
                         {
-                            List<DiscordUser> users = await _userRepository.GetPokemonCollectingUser(predictedPokemon.PokemonId);
-                            if (users != null && users.Count > 0)
+                            StringBuilder sb = new StringBuilder("**Collections: **");
+                            foreach (DiscordUser user in users)
                             {
-                                StringBuilder sb = new StringBuilder("**Collections: **");
-                                foreach (DiscordUser user in users)
-                                {
-                                    sb.Append(MentionUtils.MentionUser(user.DiscordUserId));
-                                }
-                                roleMention = sb.ToString();
+                                sb.Append(MentionUtils.MentionUser(user.DiscordUserId) + " ");
                             }
+                            roleMention = sb.ToString();
                         }
                         await message.ReplyAsync(roleMention, embed: predictedPokemonResult.PokemonEmbed);
                     }

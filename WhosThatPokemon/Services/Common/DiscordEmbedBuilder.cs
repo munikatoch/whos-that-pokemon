@@ -57,38 +57,14 @@ namespace WhosThatPokemon.Services.Common
             var embedBuilder = new EmbedBuilder();
             embedBuilder.Title = "All available bot commands are following:";
             embedBuilder.Description = "Note: For role mention only one type of role will be mentioned in the following decreasing precedence Rare, Shadow, Regional";
-            StringBuilder commands = new StringBuilder();
-            StringBuilder description = new StringBuilder();
-            StringBuilder alias = new StringBuilder();
 
-            commands.AppendLine("[predict]");
-            commands.AppendLine();
-            commands.AppendLine("[collection]");
-            commands.AppendLine();
-            commands.AppendLine("[rareping]");
-            commands.AppendLine("[regionalping]");
-            commands.AppendLine("[shadowping]");
-            commands.AppendLine("[premium]");
+            embedBuilder.AddField("[predict, p]", "Predict pokemon with the given URL (Note: Only use for pokemon bot for accurate results)");
+            embedBuilder.AddField("[collection, collect, cl, c]", "Add, Remove or List your collection (Note: Available command options are {list, add, remove})");
+            embedBuilder.AddField("[rareping, rp]", "Set rare ping role");
+            embedBuilder.AddField("[regionalping, rgp]", "Set regional ping role");
+            embedBuilder.AddField("[shadowping, sp]", "Set shadow ping role");
+            embedBuilder.AddField("[premium, patreon]", "Donate to whos that pokemon bot");
 
-            description.AppendLine("[Predict pokemon with the given URL (Note: Only use for pokemon bot for accurate results)]");
-            description.AppendLine("[Add, Remove or List your collection (Note: Available command options are {list, add, remove})]");
-            description.AppendLine("[Set rare ping role]");
-            description.AppendLine("[Set regional ping role]");
-            description.AppendLine("[Set shadow ping role]");
-            description.AppendLine("[Donate to whos that pokemon bot]");
-
-            alias.AppendLine("[p]");
-            commands.AppendLine();
-            alias.AppendLine("[collect, cl, c]");
-            commands.AppendLine();
-            alias.AppendLine("[rp]");
-            alias.AppendLine("[rgp]");
-            alias.AppendLine("[sp]");
-            alias.AppendLine("[patreon]");
-
-            embedBuilder.AddField("[command]", commands.ToString(), true);
-            embedBuilder.AddField("[Description]", description.ToString(), true);
-            embedBuilder.AddField("[Alias]", alias.ToString(), true);
             return embedBuilder.Build();
         }
 

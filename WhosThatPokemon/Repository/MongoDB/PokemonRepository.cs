@@ -52,7 +52,8 @@ namespace WhosThatPokemon.Repository.MongoDB
             try
             {
                 FilterDefinition<Pokemon> filter = Builders<Pokemon>.Filter.Eq(r => r.PokemonId, pokemonsId);
-                Pokemon result = await _collection.Find(filter).FirstOrDefaultAsync();
+                UpdateDefinition<Pokemon> update = Builders<Pokemon>.Update.Inc(r => r.SpawnCount, 1);
+                Pokemon result = await _collection.FindOneAndUpdateAsync(filter, update);
                 return result;
             }
             catch (Exception ex)
