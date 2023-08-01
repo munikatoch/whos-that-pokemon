@@ -62,7 +62,9 @@ namespace WhosThatPokemon.Services.Common
             StringBuilder alias = new StringBuilder();
 
             commands.AppendLine("[predict]");
+            commands.AppendLine();
             commands.AppendLine("[collection]");
+            commands.AppendLine();
             commands.AppendLine("[rareping]");
             commands.AppendLine("[regionalping]");
             commands.AppendLine("[shadowping]");
@@ -76,7 +78,9 @@ namespace WhosThatPokemon.Services.Common
             description.AppendLine("[Donate to whos that pokemon bot]");
 
             alias.AppendLine("[p]");
+            commands.AppendLine();
             alias.AppendLine("[collect, cl, c]");
+            commands.AppendLine();
             alias.AppendLine("[rp]");
             alias.AppendLine("[rgp]");
             alias.AppendLine("[sp]");
@@ -92,7 +96,7 @@ namespace WhosThatPokemon.Services.Common
         {
             var embedBuilder = new EmbedBuilder();
             embedBuilder.Title = "Donate to Whos That Pokemon Bot for special benefits!";
-            embedBuilder.Url = "https://www.patreon.com/Cornpuff";
+            embedBuilder.Description = "https://www.patreon.com/Cornpuff";
             return embedBuilder.Build();
         }
 
