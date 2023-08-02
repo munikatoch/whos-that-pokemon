@@ -120,38 +120,46 @@ namespace WhosThatPokemon.Handler
                     Pokemon predictedPokemon = predictedPokemonResult.Pokemon;
                     string roleMention = string.Empty;
 
-                    if (message.Channel is SocketGuildChannel)
+                    if (message.Channel is SocketGuild)
                     {
-                        SocketGuildChannel? channel = message.Channel as SocketGuildChannel;
-                        if ((predictedPokemon.IsRare || predictedPokemon.IsShadow || predictedPokemon.IsRegional) && channel?.Guild != null)
+                        SocketGuild? guild = message.Channel as SocketGuild;
+                        if (guild != null)
                         {
-                            DiscordServer server = await _serverRepository.GetServerDataAsync(channel.Guild.Id);
-                            if (predictedPokemon.IsRare)
+                            if ((predictedPokemon.IsRare || predictedPokemon.IsShadow || predictedPokemon.IsRegional))
                             {
-                                if (server.RarePingId != 0)
+                                DiscordServer server = await _serverRepository.GetServerDataAsync(guild.Id);
+                                if (predictedPokemon.IsRare)
                                 {
-                                    roleMention = MentionUtils.MentionRole(server.RarePingId);
+                                    if (server.RarePingId != 0)
+                                    {
+                                        roleMention = MentionUtils.MentionRole(server.RarePingId);
+                                    }
+                                    await SendMessageToStarboard(message, guild.Id, server.StarboardChannelId);
                                 }
-                                await SendMessageToStarboard(message, channel.Guild.Id, server.StarboardChannelId);
+                                else if (predictedPokemon.IsShadow && server.ShadowPingId != 0)
+                                {
+                                    roleMention = MentionUtils.MentionRole(server.ShadowPingId);
+                                }
+                                else if (server.RegionalPingId != 0)
+                                {
+                                    roleMention = MentionUtils.MentionRole(server.RegionalPingId);
+                                }
                             }
-                            else if (predictedPokemon.IsShadow && server.ShadowPingId != 0)
+                            List<DiscordUser> users = await _userRepository.GetPokemonCollectingUser(predictedPokemon.PokemonId);
+                            if (users != null && users.Count > 0)
                             {
-                                roleMention = MentionUtils.MentionRole(server.ShadowPingId);
+                                StringBuilder sb = new StringBuilder("**Collections: **");
+
+                                foreach (DiscordUser user in users)
+                                {
+                                    var guildUser = guild.GetUser(user.DiscordUserId);
+                                    if (guildUser != null)
+                                    {
+                                        sb.Append(MentionUtils.MentionUser(user.DiscordUserId) + " ");
+                                    }
+                                }
+                                roleMention = sb.ToString();
                             }
-                            else if (server.RegionalPingId != 0)
-                            {
-                                roleMention = MentionUtils.MentionRole(server.RegionalPingId);
-                            }
-                        }
-                        List<DiscordUser> users = await _userRepository.GetPokemonCollectingUser(predictedPokemon.PokemonId);
-                        if (users != null && users.Count > 0)
-                        {
-                            StringBuilder sb = new StringBuilder("**Collections: **");
-                            foreach (DiscordUser user in users)
-                            {
-                                sb.Append(MentionUtils.MentionUser(user.DiscordUserId) + " ");
-                            }
-                            roleMention = sb.ToString();
                         }
                         await message.ReplyAsync(roleMention, embed: predictedPokemonResult.PokemonEmbed);
                     }
@@ -161,7 +169,7 @@ namespace WhosThatPokemon.Handler
 
         private async Task SendMessageToStarboard(SocketUserMessage message, ulong guildId, ulong channelId)
         {
-            if(channelId != 0)
+            if (channelId != 0)
             {
                 SocketGuild guild = _client.GetGuild(guildId);
                 if (guild != null)
