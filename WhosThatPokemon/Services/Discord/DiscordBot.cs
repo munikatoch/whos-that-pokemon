@@ -78,6 +78,7 @@ namespace WhosThatPokemon.Services.Discord
             else
             {
                 await _discordServerRepository.InsertServerAsync(guild.Id).ConfigureAwait(false);
+                await SendMessageToChannelAsync($"Bot joined server {guild.Id} : {guild.Name}").ConfigureAwait(false);
             }
         }
 
