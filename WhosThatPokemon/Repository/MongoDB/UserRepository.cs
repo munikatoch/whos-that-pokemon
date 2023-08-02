@@ -91,7 +91,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             {
                 int nonPremiumUserCollectionLimit = _config.GetValue("UserPokemonCollectionLimit", 0);
                 pokemons = (await _pokemonRepository.GetPokemonByName(pokemonNames))
-                            .Where(x => !x.IsRegional && !x.IsRare && !x.IsShadow)
+                            .Where(x => !x.IsRare)
                             .Take(nonPremiumUserCollectionLimit)
                             .ToList();
 
@@ -150,7 +150,7 @@ namespace WhosThatPokemon.Repository.MongoDB
                 else if (user.PokemonCollection != null && user.PokemonCollection.Length < nonPremiumUserCollectionLimit)
                 {
                     pokemonIds = (await _pokemonRepository.GetPokemonByName(pokemonNames))
-                        .Where(x => x != null && user.PokemonCollection != null && !user.PokemonCollection.Contains(x.PokemonId) && !x.IsRegional && !x.IsRare && !x.IsShadow)
+                        .Where(x => x != null && user.PokemonCollection != null && !user.PokemonCollection.Contains(x.PokemonId) && !x.IsRare)
                         .Take(nonPremiumUserCollectionLimit - user.PokemonCollection.Length)
                         .ToList();
                 }
