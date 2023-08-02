@@ -10,9 +10,10 @@ namespace WhosThatPokemon.Interfaces.Repository
 {
     public interface IDiscordServerRepository
     {
-        Task InsertServerAsync(ulong id);
-        Task DeleteServerAsync(ulong id);
-        Task UpdateRole(ulong id, DiscordRoleType roleType, ulong roleId);
-        Task<DiscordServer> GetMentionRoles(ulong id);
+        Task InsertServerAsync(ulong guildId);
+        Task DeleteServerAsync(ulong guildId);
+        Task UpdateRoleAsync(ulong guildId, DiscordRoleType roleType, ulong roleId);
+        Task<DiscordServer> GetServerDataAsync(ulong guildId);
+        Task UpdateChannelAsync(ulong guildId, DiscordChannelType channel, ulong channelId);
     }
 }

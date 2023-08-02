@@ -9,5 +9,6 @@ namespace WhosThatPokemon.Interfaces.Service
         Task<DiscordPokemonPrediction> PredictSpawnedPokemon(string url, Color? color);
         Task<Embed> PredictPokemon(string url);
         bool ValidatePokemonSpanMessage(SocketUserMessage message);
+        bool ValidateIsShinyPokemonMessage(SocketUserMessage message);
     }
 }

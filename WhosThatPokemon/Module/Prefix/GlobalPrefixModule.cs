@@ -93,7 +93,7 @@ namespace WhosThatPokemon.Module.Prefix
             await Context.Message.ReplyAsync(string.Format(Constants.BotSetRarePingMessage, role.Mention));
             _ = Task.Run(async () =>
             {
-                await _serverRepository.UpdateRole(Context.Guild.Id, DiscordRoleType.Rare, role.Id).ConfigureAwait(false);
+                await _serverRepository.UpdateRoleAsync(Context.Guild.Id, DiscordRoleType.Rare, role.Id).ConfigureAwait(false);
             });
             await _logger.CommandUsedLogAsync("GlobalPrefixModule", "rareping", Context.Guild.Id, Context.Channel.Id, Context.User.Id).ConfigureAwait(false);
         }
@@ -107,7 +107,7 @@ namespace WhosThatPokemon.Module.Prefix
 
             _ = Task.Run(async () =>
             {
-                await _serverRepository.UpdateRole(Context.Guild.Id, DiscordRoleType.Regional, role.Id).ConfigureAwait(false);
+                await _serverRepository.UpdateRoleAsync(Context.Guild.Id, DiscordRoleType.Regional, role.Id).ConfigureAwait(false);
             });
 
             await _logger.CommandUsedLogAsync("GlobalPrefixModule", "regionalping", Context.Guild.Id, Context.Channel.Id, Context.User.Id).ConfigureAwait(false);
@@ -122,7 +122,22 @@ namespace WhosThatPokemon.Module.Prefix
 
             _ = Task.Run(async () =>
             {
-                await _serverRepository.UpdateRole(Context.Guild.Id, DiscordRoleType.Shadow, role.Id).ConfigureAwait(false);
+                await _serverRepository.UpdateRoleAsync(Context.Guild.Id, DiscordRoleType.Shadow, role.Id).ConfigureAwait(false);
+            });
+
+            await _logger.CommandUsedLogAsync("GlobalPrefixModule", "shadowping", Context.Guild.Id, Context.Channel.Id, Context.User.Id).ConfigureAwait(false);
+        }
+
+        [Command("starboard")]
+        [Alias("sb")]
+        [RequireBotPermission(ChannelPermission.SendMessages)]
+        public async Task StarboardChannel(SocketChannel channel)
+        {
+            await Context.Message.ReplyAsync(string.Format(Constants.BotSetStarboardChannelMessage, MentionUtils.MentionChannel(channel.Id)));
+
+            _ = Task.Run(async () =>
+            {
+                await _serverRepository.UpdateChannelAsync(Context.Guild.Id, DiscordChannelType.Startboard, channel.Id).ConfigureAwait(false);
             });
 
             await _logger.CommandUsedLogAsync("GlobalPrefixModule", "shadowping", Context.Guild.Id, Context.Channel.Id, Context.User.Id).ConfigureAwait(false);

@@ -10,6 +10,7 @@ using WhosThatPokemon.Interfaces.Service;
 using WhosThatPokemon.Model;
 using WhosThatPokemon.Model.DataAccess;
 using WhosThatPokemon.Module.Prefix;
+using WhosThatPokemon.Services.Common;
 
 namespace WhosThatPokemon.Handler
 {
@@ -69,10 +70,27 @@ namespace WhosThatPokemon.Handler
                 {
                     await TryGetPokemonPrediction(message).ConfigureAwait(false);
                 }
+                else if (_pokemonService.ValidateIsShinyPokemonMessage(message))
+                {
+                    await SendShinyMessageToStarBoard(message).ConfigureAwait(false);
+                }
             }
             else
             {
                 await ExecutePrefixCommand(message).ConfigureAwait(false);
+            }
+        }
+
+        private async Task SendShinyMessageToStarBoard(SocketUserMessage message)
+        {
+            if (message.Channel is SocketGuildChannel)
+            {
+                SocketGuildChannel? guildChannel = message.Channel as SocketGuildChannel;
+                if (guildChannel != null)
+                {
+                    DiscordServer server = await _serverRepository.GetServerDataAsync(guildChannel.Guild.Id);
+                    await SendMessageToStarboard(message, guildChannel.Guild.Id, server.StarboardChannelId);
+                }
             }
         }
 
@@ -107,10 +125,14 @@ namespace WhosThatPokemon.Handler
                         SocketGuildChannel? channel = message.Channel as SocketGuildChannel;
                         if ((predictedPokemon.IsRare || predictedPokemon.IsShadow || predictedPokemon.IsRegional) && channel?.Guild != null)
                         {
-                            DiscordServer server = await _serverRepository.GetMentionRoles(channel.Guild.Id);
-                            if (predictedPokemon.IsRare && server.RarePingId != 0)
+                            DiscordServer server = await _serverRepository.GetServerDataAsync(channel.Guild.Id);
+                            if (predictedPokemon.IsRare)
                             {
-                                roleMention = MentionUtils.MentionRole(server.RarePingId);
+                                if (server.RarePingId != 0)
+                                {
+                                    roleMention = MentionUtils.MentionRole(server.RarePingId);
+                                }
+                                await SendMessageToStarboard(message, channel.Guild.Id, server.StarboardChannelId);
                             }
                             else if (predictedPokemon.IsShadow && server.ShadowPingId != 0)
                             {
@@ -132,6 +154,24 @@ namespace WhosThatPokemon.Handler
                             roleMention = sb.ToString();
                         }
                         await message.ReplyAsync(roleMention, embed: predictedPokemonResult.PokemonEmbed);
+                    }
+                }
+            }
+        }
+
+        private async Task SendMessageToStarboard(SocketUserMessage message, ulong guildId, ulong channelId)
+        {
+            if(channelId != 0)
+            {
+                SocketGuild guild = _client.GetGuild(guildId);
+                if (guild != null)
+                {
+                    SocketGuildChannel channel = guild.GetChannel(channelId);
+                    if (channel is SocketTextChannel)
+                    {
+                        SocketTextChannel textChannel = (SocketTextChannel)channel;
+                        Embed embed = DiscordEmbedBuilder.BuildStartboardEmbed(message, message.GetJumpUrl());
+                        await textChannel.SendMessageAsync(embed: embed);
                     }
                 }
             }

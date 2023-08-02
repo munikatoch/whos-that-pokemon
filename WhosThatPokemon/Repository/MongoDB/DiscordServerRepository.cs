@@ -19,19 +19,19 @@ namespace WhosThatPokemon.Repository.MongoDB
             _collection = client.GetDatabase("DiscordBot").GetCollection<DiscordServer>("Server");
         }
 
-        public async Task InsertServerAsync(ulong id)
+        public async Task InsertServerAsync(ulong guildId)
         {
             try
             {
                 await _collection.InsertOneAsync(new DiscordServer()
                 {
-                    ServerId = id,
+                    ServerId = guildId,
                 });
 
-                await _logger.FileLogAsync(new 
-                { 
-                    InsertedServerId = id, 
-                    Message = Constants.DatabaseInsertServerMessage 
+                await _logger.FileLogAsync(new
+                {
+                    InsertedServerId = guildId,
+                    Message = Constants.DatabaseInsertServerMessage
                 }, LogEventLevel.Information).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -40,17 +40,17 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
         }
 
-        public async Task DeleteServerAsync(ulong id)
+        public async Task DeleteServerAsync(ulong guildId)
         {
             try
             {
-                FilterDefinition<DiscordServer> filter = Builders<DiscordServer>.Filter.Eq(server => server.ServerId, id);
+                FilterDefinition<DiscordServer> filter = Builders<DiscordServer>.Filter.Eq(server => server.ServerId, guildId);
                 DeleteResult deleteResult = await _collection.DeleteOneAsync(filter);
-                await _logger.FileLogAsync(new 
-                { 
-                    DeletedServerId = id, 
-                    deleteResult.DeletedCount, 
-                    Message = Constants.DatabaseDeleteServerMessage 
+                await _logger.FileLogAsync(new
+                {
+                    DeletedServerId = guildId,
+                    DeleteResult = deleteResult,
+                    Message = string.Format(Constants.DatabaseDeleteServerMessage, $"DeleteServerAsync {guildId}")
                 }, LogEventLevel.Information).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -59,11 +59,11 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
         }
 
-        public async Task UpdateRole(ulong id, DiscordRoleType roleType, ulong roleId)
+        public async Task UpdateRoleAsync(ulong guildId, DiscordRoleType roleType, ulong roleId)
         {
             try
             {
-                FilterDefinition<DiscordServer> filter = Builders<DiscordServer>.Filter.Eq(x => x.ServerId, id);
+                FilterDefinition<DiscordServer> filter = Builders<DiscordServer>.Filter.Eq(x => x.ServerId, guildId);
                 UpdateDefinition<DiscordServer> updateDefinition;
                 if (roleType == DiscordRoleType.Rare)
                 {
@@ -78,26 +78,55 @@ namespace WhosThatPokemon.Repository.MongoDB
                     updateDefinition = Builders<DiscordServer>.Update.Set(x => x.ShadowPingId, roleId);
                 }
 
-                await _collection.UpdateOneAsync(filter, updateDefinition);
+                UpdateResult updateResult = await _collection.UpdateOneAsync(filter, updateDefinition);
+
+                await _logger.FileLogAsync(new
+                {
+                    DeletedServerId = guildId,
+                    UpdateResult = updateResult,
+                    Message = string.Format(Constants.DatabaseDeleteServerMessage, $"UpdateRole {roleType}")
+                }, LogEventLevel.Information).ConfigureAwait(false);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await _logger.ExceptionLogAsync("DiscordServerRepository.UpdateRole", ex).ConfigureAwait(false);
             }
         }
 
-        public async Task<DiscordServer> GetMentionRoles(ulong id)
+        public async Task<DiscordServer> GetServerDataAsync(ulong guildId)
         {
             try
             {
-                DiscordServer server = await _collection.Find(x => x.ServerId == id).FirstOrDefaultAsync();
+                DiscordServer server = await _collection.Find(x => x.ServerId == guildId).FirstOrDefaultAsync();
                 return server;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await _logger.ExceptionLogAsync("DiscordServerRepository.GetMentionRoles", ex).ConfigureAwait(false);
             }
             return null;
+        }
+
+        public async Task UpdateChannelAsync(ulong guildId, DiscordChannelType channelType, ulong channelId)
+        {
+            try
+            {
+                FilterDefinition<DiscordServer> filter = Builders<DiscordServer>.Filter.Eq(x => x.ServerId, guildId);
+                UpdateDefinition<DiscordServer> updateDefinition;
+                updateDefinition = Builders<DiscordServer>.Update.Set(x => x.StarboardChannelId, channelId);
+                UpdateResult updateResult = await _collection.UpdateOneAsync(filter, updateDefinition);
+
+                await _logger.FileLogAsync(new
+                {
+                    DeletedServerId = guildId,
+                    UpdateResult = updateResult,
+                    Message = string.Format(Constants.DatabaseUpdateServerMessage, $"UpdateChannelAsync {channelType}")
+                }, LogEventLevel.Information).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await _logger.ExceptionLogAsync("DiscordServerRepository.UpdateChannelAsync", ex).ConfigureAwait(false);
+            }
         }
     }
 }

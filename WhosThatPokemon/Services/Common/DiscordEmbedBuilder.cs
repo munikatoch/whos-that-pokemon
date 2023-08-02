@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -63,6 +64,7 @@ namespace WhosThatPokemon.Services.Common
             embedBuilder.AddField("[rareping, rp]", "Set rare ping role");
             embedBuilder.AddField("[regionalping, rgp]", "Set regional ping role");
             embedBuilder.AddField("[shadowping, sp]", "Set shadow ping role");
+            embedBuilder.AddField("[starboard, sb]", "Set starboard channel");
             embedBuilder.AddField("[premium, patreon]", "Donate to whos that pokemon bot");
 
             return embedBuilder.Build();
@@ -80,7 +82,7 @@ namespace WhosThatPokemon.Services.Common
         {
             EmbedBuilder embedBuilder = new EmbedBuilder();
 
-            if(operation == PokemonCollectionOperation.Add)
+            if (operation == PokemonCollectionOperation.Add)
             {
                 embedBuilder.Title = "Pokemons added to collection are:";
             }
@@ -94,6 +96,31 @@ namespace WhosThatPokemon.Services.Common
                 sb.AppendLine(TextUtil.ChangeToPascalCase(pokemon.PokemonName));
             }
             embedBuilder.Description = sb.ToString();
+            return embedBuilder.Build();
+        }
+
+        public static Embed BuildStartboardEmbed(SocketUserMessage message, string jumpUrl)
+        {
+            Embed? pokemonEmbed = message.Embeds.FirstOrDefault();
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            if (pokemonEmbed != null)
+            {
+                embedBuilder.Title = embedBuilder.Title;
+                embedBuilder.Description = pokemonEmbed.Description;
+                embedBuilder.ImageUrl = pokemonEmbed.Image.GetValueOrDefault().Url;
+                foreach (var pokemonField in pokemonEmbed.Fields)
+                {
+                    embedBuilder.AddField(pokemonField.Name, pokemonField.Value, pokemonField.Inline);
+                }
+                embedBuilder.Color = pokemonEmbed.Color;
+                embedBuilder.AddField("", $"[Jump to message]({jumpUrl})");
+            }
+            else
+            {
+                embedBuilder.Title = "Shiny Caught";
+                embedBuilder.Description = message.Content;
+                embedBuilder.AddField("", $"[Jump to message]({jumpUrl})");
+            }
             return embedBuilder.Build();
         }
     }

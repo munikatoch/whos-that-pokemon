@@ -28,11 +28,13 @@ namespace WhosThatPokemon.Model
         public static readonly string BotSetRarePingMessage = "Rare ping set for role {0}";
         public static readonly string BotSetRegionalPingMessage = "Regional ping set for role {0}";
         public static readonly string BotSetShadowPingMessage = "Shadow ping set for role {0}";
+        public static readonly string BotSetStarboardChannelMessage = "Starboard channel set to {0}";
         public static readonly string BotListCollectionMessage = "Fetching your Collection";
         public static readonly string BotPredictPokemonMessage = "This will accurately predict pokemons from pokemon bot only";
 
 
-        public static readonly string DatabaseDeleteServerMessage = "Server Deleted Successfully";
-        public static readonly string DatabaseInsertServerMessage = "Server Inserted Successfully";
+        public static readonly string DatabaseDeleteServerMessage = "Server Deleted Successfully: Source {}";
+        public static readonly string DatabaseInsertServerMessage = "Server Inserted Successfully: Source {}";
+        public static readonly string DatabaseUpdateServerMessage = "Server Updated Successfully: Source {}";
     }
 }

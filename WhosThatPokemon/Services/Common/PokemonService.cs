@@ -95,5 +95,32 @@ namespace WhosThatPokemon.Services.Common
             }
             return embed.Title.Equals("A wild pokémon has аppeаred!", StringComparison.InvariantCultureIgnoreCase);
         }
+
+        public bool ValidateIsShinyPokemonMessage(SocketUserMessage message)
+        {
+            if (message.Author.Id != Constants.PokemonBotAuthorId)
+            {
+                return false;
+            }
+            string messageText = message.Content;
+            bool containShinyMessage = false;
+
+            string[] messageTextPart = messageText.Split(" ");
+            for(int i = 0; i < messageTextPart.Length; i++)
+            {
+                if (messageTextPart[i].Equals("level"))
+                {
+                    if(i + 2 < messageTextPart.Length && messageTextPart[i + 2] == ":star:")
+                    {
+                        if(i + 3 < messageTextPart.Length && messageTextPart[i + 3] == "Shiny")
+                        {
+                            containShinyMessage = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            return messageText.StartsWith("Congratulations") && containShinyMessage;
+        }
     }
 }
