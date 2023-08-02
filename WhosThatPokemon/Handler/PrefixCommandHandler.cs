@@ -120,21 +120,21 @@ namespace WhosThatPokemon.Handler
                     Pokemon predictedPokemon = predictedPokemonResult.Pokemon;
                     string roleMention = string.Empty;
 
-                    if (message.Channel is SocketGuild)
+                    if (message.Channel is SocketGuildChannel)
                     {
-                        SocketGuild? guild = message.Channel as SocketGuild;
+                        SocketGuildChannel? guild = message.Channel as SocketGuildChannel;
                         if (guild != null)
                         {
                             if ((predictedPokemon.IsRare || predictedPokemon.IsShadow || predictedPokemon.IsRegional))
                             {
-                                DiscordServer server = await _serverRepository.GetServerDataAsync(guild.Id);
+                                DiscordServer server = await _serverRepository.GetServerDataAsync(guild.Guild.Id);
                                 if (predictedPokemon.IsRare)
                                 {
                                     if (server.RarePingId != 0)
                                     {
                                         roleMention = MentionUtils.MentionRole(server.RarePingId);
                                     }
-                                    await SendMessageToStarboard(message, guild.Id, server.StarboardChannelId);
+                                    await SendMessageToStarboard(message, guild.Guild.Id, server.StarboardChannelId);
                                 }
                                 else if (predictedPokemon.IsShadow && server.ShadowPingId != 0)
                                 {
