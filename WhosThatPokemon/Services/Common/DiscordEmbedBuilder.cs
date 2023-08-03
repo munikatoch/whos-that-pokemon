@@ -32,24 +32,7 @@ namespace WhosThatPokemon.Services.Common
         public static Task BuildPokemonPredictionModel(EmbedBuilder embedBuilder, Pokemon pokemon)
         {
             string pokemonName = TextUtil.ChangeToPascalCase(pokemon.PokemonName);
-            embedBuilder.AddField("Pokemon Name: ", pokemonName);
-            List<string> tags = new List<string>();
-            if (pokemon.IsRare)
-            {
-                tags.Add("Rare");
-            }
-            if (pokemon.IsRegional)
-            {
-                tags.Add("Regional");
-            }
-            if (pokemon.IsShadow)
-            {
-                tags.Add("Shadow");
-            }
-            if (tags.Count > 0)
-            {
-                embedBuilder.AddField("Tags:", string.Join(", ", tags));
-            }
+            embedBuilder.AddField("Pokemon Name: ", "**" + pokemonName + "**");
             return Task.CompletedTask;
         }
 
