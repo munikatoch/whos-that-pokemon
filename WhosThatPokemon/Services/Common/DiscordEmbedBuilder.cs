@@ -32,7 +32,7 @@ namespace WhosThatPokemon.Services.Common
         public static Task BuildPokemonPredictionModel(EmbedBuilder embedBuilder, Pokemon pokemon)
         {
             string pokemonName = TextUtil.ChangeToPascalCase(pokemon.PokemonName);
-            embedBuilder.AddField("Pokemon Name: ", "**" + pokemonName + "**");
+            embedBuilder.AddField("Pokemon Name: ", "`" + pokemonName + "`");
             return Task.CompletedTask;
         }
 
