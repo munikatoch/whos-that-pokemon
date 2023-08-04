@@ -51,12 +51,19 @@ namespace WhosThatPokemon.Handler
 
         private async Task SlashCommandExecutedEvent(SocketSlashCommand command)
         {
-            ShardedInteractionContext context = new ShardedInteractionContext(_client, command);
-            IResult result = await _interactionService.ExecuteCommandAsync(context, _serviceProvider);
-            if (!result.IsSuccess)
+            try
             {
-                await _logger.FileLogAsync(result, LogEventLevel.Error).ConfigureAwait(false);
-                await command.RespondAsync(result.ErrorReason);
+                ShardedInteractionContext context = new ShardedInteractionContext(_client, command);
+                IResult result = await _interactionService.ExecuteCommandAsync(context, _serviceProvider);
+                if (!result.IsSuccess)
+                {
+                    await _logger.FileLogAsync(result, LogEventLevel.Error).ConfigureAwait(false);
+                    await command.RespondAsync(result.ErrorReason);
+                }
+            }
+            catch(Exception ex)
+            {
+                await _logger.ExceptionLogAsync("InteractionCommandHandler.SlashCommandExecutedEvent", ex).ConfigureAwait(false);
             }
         }
     }

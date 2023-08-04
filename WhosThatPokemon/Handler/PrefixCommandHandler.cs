@@ -64,20 +64,27 @@ namespace WhosThatPokemon.Handler
 
         private async Task HandleCommandAsync(SocketUserMessage message)
         {
-            if (message.Author.IsBot)
+            try
             {
-                if (_pokemonService.ValidatePokemonSpanMessage(message))
+                if (message.Author.IsBot)
                 {
-                    await TryGetPokemonPrediction(message).ConfigureAwait(false);
+                    if (_pokemonService.ValidatePokemonSpanMessage(message))
+                    {
+                        await TryGetPokemonPrediction(message).ConfigureAwait(false);
+                    }
+                    else if (_pokemonService.ValidateIsShinyPokemonMessage(message))
+                    {
+                        await SendShinyMessageToStarBoard(message).ConfigureAwait(false);
+                    }
                 }
-                else if (_pokemonService.ValidateIsShinyPokemonMessage(message))
+                else
                 {
-                    await SendShinyMessageToStarBoard(message).ConfigureAwait(false);
+                    await ExecutePrefixCommand(message).ConfigureAwait(false);
                 }
             }
-            else
+            catch(Exception ex)
             {
-                await ExecutePrefixCommand(message).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync("PrefixCommandHandler.HandleCommandAsync", ex).ConfigureAwait(false);
             }
         }
 
