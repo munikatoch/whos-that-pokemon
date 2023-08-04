@@ -88,7 +88,7 @@ namespace WhosThatPokemon.Services.Common
             EmbedBuilder embedBuilder = new EmbedBuilder();
             if (pokemonEmbed != null)
             {
-                embedBuilder.Title = embedBuilder.Title;
+                embedBuilder.Title = pokemonEmbed.Title;
                 embedBuilder.Description = pokemonEmbed.Description;
                 embedBuilder.ImageUrl = pokemonEmbed.Image.GetValueOrDefault().Url;
                 foreach (var pokemonField in pokemonEmbed.Fields)
@@ -96,7 +96,7 @@ namespace WhosThatPokemon.Services.Common
                     embedBuilder.AddField(pokemonField.Name, pokemonField.Value, pokemonField.Inline);
                 }
                 embedBuilder.Color = pokemonEmbed.Color;
-                embedBuilder.AddField("", $"[Jump to message]({jumpUrl})");
+                embedBuilder.AddField("Go to message: ", $"[Jump to message]({jumpUrl})");
             }
             else
             {
