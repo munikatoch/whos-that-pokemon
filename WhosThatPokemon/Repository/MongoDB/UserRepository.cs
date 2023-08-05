@@ -23,26 +23,26 @@ namespace WhosThatPokemon.Repository.MongoDB
             _logger = logger;
         }
 
-        public async Task<List<Pokemon>> UpsertUserPokemonCollection(ulong userId, string collection)
+        public async Task<List<Pokemon>> UpsertUserPokemonCollectionAsync(ulong userId, string collection)
         {
             string[] pokemonNames = collection.Split(",").Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
 
-            DiscordUser user = await GetUserByUserId(userId);
+            DiscordUser user = await GetUserByUserIdAsync(userId);
 
             List<Pokemon> pokemons;
 
             if (user == null)
             {
-                pokemons = await InsertUser(pokemonNames, userId);
+                pokemons = await InsertUserWithCollectionAsync(pokemonNames, userId);
             }
             else
             {
-                pokemons = await UpdateUserCollection(user, pokemonNames, userId);
+                pokemons = await UpdateUserCollectionAsync(user, pokemonNames, userId);
             }
             return pokemons;
         }
 
-        public async Task<List<Pokemon>> RemoveUserPokemonCollection(ulong userId, string collection)
+        public async Task<List<Pokemon>> RemoveUserPokemonCollectionAsync(ulong userId, string collection)
         {
             string[] pokemonNames = collection.Split(",").Select(x => x.Trim()).ToArray();
             List<Pokemon> pokemons = (await _pokemonRepository.GetPokemonByName(pokemonNames)).ToList();
@@ -69,7 +69,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             return pokemons;
         }
 
-        public async Task<DiscordUser> GetUserByUserId(ulong userId)
+        public async Task<DiscordUser> GetUserByUserIdAsync(ulong userId)
         {
             try
             {
@@ -84,7 +84,88 @@ namespace WhosThatPokemon.Repository.MongoDB
             return null;
         }
 
-        private async Task<List<Pokemon>> InsertUser(string[] pokemonNames, ulong userId)
+        public async Task<List<DiscordUser>> GetPokemonCollectingUserAsync(int pokemonId)
+        {
+            try
+            {
+                var result = await (await _collection.FindAsync(x => x.PokemonCollection != null && x.PokemonCollection.Contains(pokemonId))).ToListAsync();
+                return result;
+            }
+            catch(Exception ex)
+            {
+                await _logger.ExceptionLogAsync("UserRepository.UpdateUserCollection", ex).ConfigureAwait(false);
+            }
+            return null;
+        }
+
+        public async Task UpdateUserAfkStatusAsync(DiscordUser user)
+        {
+            try
+            {
+                FilterDefinition<DiscordUser> filter = Builders<DiscordUser>.Filter.Eq(x => x.DiscordUserId, user.DiscordUserId);
+                UpdateDefinition<DiscordUser> update = Builders<DiscordUser>.Update.Set(x => x.IsUserAfk, !user.IsUserAfk);
+                UpdateResult result = await _collection.UpdateOneAsync(filter, update);
+                await _logger.FileLogAsync(result, LogEventLevel.Information).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await _logger.ExceptionLogAsync("UserRepository.UpdateUserAfkStatusAsync", ex).ConfigureAwait(false);
+            }
+        }
+
+        public async Task InsertUserAsync(DiscordUser user)
+        {
+            await _collection.InsertOneAsync(user);
+        }
+
+        private async Task<List<Pokemon>> CreatePokemonCollectionAsync(DiscordUser user, string[] pokemonNames)
+        {
+            List<Pokemon> pokemonIds = new List<Pokemon>();
+            int nonPremiumUserCollectionLimit = _config.GetValue("UserPokemonCollectionLimit", 0);
+            if (user != null)
+            {
+                if (user.IsPremiumUser || nonPremiumUserCollectionLimit == 0)
+                {
+                    pokemonIds = (await _pokemonRepository.GetPokemonByName(pokemonNames))
+                        .Where(x => x != null && user.PokemonCollection != null && !user.PokemonCollection.Contains(x.PokemonId))
+                        .ToList();
+                }
+                else if (user.PokemonCollection != null && user.PokemonCollection.Length < nonPremiumUserCollectionLimit)
+                {
+                    pokemonIds = (await _pokemonRepository.GetPokemonByName(pokemonNames))
+                        .Where(x => x != null && user.PokemonCollection != null && !user.PokemonCollection.Contains(x.PokemonId) && !x.IsRare)
+                        .Take(nonPremiumUserCollectionLimit - user.PokemonCollection.Length)
+                        .ToList();
+                }
+            }
+            return pokemonIds;
+        }
+
+        private async Task<List<Pokemon>> UpdateUserCollectionAsync(DiscordUser user, string[] pokemonNames, ulong userId)
+        {
+            List<Pokemon> pokemons = await CreatePokemonCollectionAsync(user, pokemonNames);
+
+            if (pokemons.Count > 0)
+            {
+                try
+                {
+                    int[] pokemonIds = pokemons.Select(x => x.PokemonId).ToArray();
+                    FilterDefinition<DiscordUser> userIdFilter = Builders<DiscordUser>.Filter.Eq(u => u.DiscordUserId, userId);
+
+                    UpdateDefinition<DiscordUser> updatedCollection = Builders<DiscordUser>.Update.PushEach(x => x.PokemonCollection, pokemonIds);
+
+                    UpdateResult result = await _collection.UpdateOneAsync(userIdFilter, updatedCollection);
+                    await _logger.FileLogAsync(result, LogEventLevel.Information).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    await _logger.ExceptionLogAsync("UserRepository.UpdateUserCollection", ex).ConfigureAwait(false);
+                }
+            }
+            return pokemons;
+        }
+
+        private async Task<List<Pokemon>> InsertUserWithCollectionAsync(string[] pokemonNames, ulong userId)
         {
             List<Pokemon> pokemons = new List<Pokemon>();
             try
@@ -109,67 +190,6 @@ namespace WhosThatPokemon.Repository.MongoDB
                 await _logger.ExceptionLogAsync("UserRepository.InsertUser", ex).ConfigureAwait(false);
             }
             return pokemons;
-        }
-
-        private async Task<List<Pokemon>> UpdateUserCollection(DiscordUser user, string[] pokemonNames, ulong userId)
-        {
-            List<Pokemon> pokemons = await CreatePokemonCollection(user, pokemonNames);
-
-            if (pokemons.Count > 0)
-            {
-                try
-                {
-                    int[] pokemonIds = pokemons.Select(x => x.PokemonId).ToArray();
-                    FilterDefinition<DiscordUser> userIdFilter = Builders<DiscordUser>.Filter.Eq(u => u.DiscordUserId, userId);
-
-                    UpdateDefinition<DiscordUser> updatedCollection = Builders<DiscordUser>.Update.PushEach(x => x.PokemonCollection, pokemonIds);
-
-                    UpdateResult result = await _collection.UpdateOneAsync(userIdFilter, updatedCollection);
-                    await _logger.FileLogAsync(result, LogEventLevel.Information).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    await _logger.ExceptionLogAsync("UserRepository.UpdateUserCollection", ex).ConfigureAwait(false);
-                }
-            }
-            return pokemons;
-        }
-
-        private async Task<List<Pokemon>> CreatePokemonCollection(DiscordUser user, string[] pokemonNames)
-        {
-            List<Pokemon> pokemonIds = new List<Pokemon>();
-            int nonPremiumUserCollectionLimit = _config.GetValue("UserPokemonCollectionLimit", 0);
-            if (user != null)
-            {
-                if (user.IsPremiumUser || nonPremiumUserCollectionLimit == 0)
-                {
-                    pokemonIds = (await _pokemonRepository.GetPokemonByName(pokemonNames))
-                        .Where(x => x != null && user.PokemonCollection != null && !user.PokemonCollection.Contains(x.PokemonId))
-                        .ToList();
-                }
-                else if (user.PokemonCollection != null && user.PokemonCollection.Length < nonPremiumUserCollectionLimit)
-                {
-                    pokemonIds = (await _pokemonRepository.GetPokemonByName(pokemonNames))
-                        .Where(x => x != null && user.PokemonCollection != null && !user.PokemonCollection.Contains(x.PokemonId) && !x.IsRare)
-                        .Take(nonPremiumUserCollectionLimit - user.PokemonCollection.Length)
-                        .ToList();
-                }
-            }
-            return pokemonIds;
-        }
-
-        public async Task<List<DiscordUser>> GetPokemonCollectingUser(int pokemonId)
-        {
-            try
-            {
-                var result = await (await _collection.FindAsync(x => x.PokemonCollection != null && x.PokemonCollection.Contains(pokemonId))).ToListAsync();
-                return result;
-            }
-            catch(Exception ex)
-            {
-                await _logger.ExceptionLogAsync("UserRepository.UpdateUserCollection", ex).ConfigureAwait(false);
-            }
-            return null;
         }
     }
 }

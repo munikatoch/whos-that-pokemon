@@ -55,7 +55,7 @@ namespace WhosThatPokemon.Module.Prefix
                 if (operation == PokemonCollectionOperation.List)
                 {
                     await Context.Message.ReplyAsync(Constants.BotListCollectionMessage);
-                    DiscordUser user = await _userRepository.GetUserByUserId(Context.User.Id);
+                    DiscordUser user = await _userRepository.GetUserByUserIdAsync(Context.User.Id);
                     int[]? pokemonIds = user.PokemonCollection;
                     List<Pokemon> pokemons = new List<Pokemon>();
                     if (pokemonIds != null)
@@ -70,14 +70,14 @@ namespace WhosThatPokemon.Module.Prefix
                 {
                     int nonPremiumUserCollectionLimit = _appConfig.GetValue("UserPokemonCollectionLimit", 0);
                     await Context.Message.ReplyAsync(string.Format(Constants.BotUserAddPokemonCollectionnMessage, nonPremiumUserCollectionLimit));
-                    List<Pokemon> addedPokemon = await _userRepository.UpsertUserPokemonCollection(Context.User.Id, string.Join(" ", collection));
+                    List<Pokemon> addedPokemon = await _userRepository.UpsertUserPokemonCollectionAsync(Context.User.Id, string.Join(" ", collection));
                     Embed pokemonsAddedEmbed = DiscordEmbedBuilder.BuildAddedPokemonEmbed(addedPokemon, operation);
                     await Context.Channel.SendMessageAsync(embed: pokemonsAddedEmbed);
                 }
                 else
                 {
                     await Context.Message.ReplyAsync(Constants.BotUserDeletePokemonCollectionnMessage);
-                    List<Pokemon> pokemonsRemoved = await _userRepository.RemoveUserPokemonCollection(Context.User.Id, string.Join(" ", collection));
+                    List<Pokemon> pokemonsRemoved = await _userRepository.RemoveUserPokemonCollectionAsync(Context.User.Id, string.Join(" ", collection));
                     Embed pokemonsAddedEmbed = DiscordEmbedBuilder.BuildAddedPokemonEmbed(pokemonsRemoved, operation);
                     await Context.Channel.SendMessageAsync(embed: pokemonsAddedEmbed);
                 }
@@ -88,6 +88,7 @@ namespace WhosThatPokemon.Module.Prefix
         [Command("rareping")]
         [Alias("rp")]
         [RequireBotPermission(ChannelPermission.SendMessages)]
+        [RequireUserPermission(GuildPermission.ModerateMembers)]
         public async Task RarePing(SocketRole role)
         {
             await Context.Message.ReplyAsync(string.Format(Constants.BotSetRarePingMessage, role.Mention));
@@ -101,6 +102,7 @@ namespace WhosThatPokemon.Module.Prefix
         [Command("regionalping")]
         [Alias("rgp")]
         [RequireBotPermission(ChannelPermission.SendMessages)]
+        [RequireUserPermission(GuildPermission.ModerateMembers)]
         public async Task RegionalPing(SocketRole role)
         {
             await Context.Message.ReplyAsync(string.Format(Constants.BotSetRegionalPingMessage, role.Mention));
@@ -116,6 +118,7 @@ namespace WhosThatPokemon.Module.Prefix
         [Command("shadowping")]
         [Alias("sp")]
         [RequireBotPermission(ChannelPermission.SendMessages)]
+        [RequireUserPermission(GuildPermission.ModerateMembers)]
         public async Task ShadowPing(SocketRole role)
         {
             await Context.Message.ReplyAsync(string.Format(Constants.BotSetShadowPingMessage, role.Mention));
@@ -131,6 +134,7 @@ namespace WhosThatPokemon.Module.Prefix
         [Command("starboard")]
         [Alias("sb")]
         [RequireBotPermission(ChannelPermission.SendMessages)]
+        [RequireUserPermission(GuildPermission.ModerateMembers)]
         public async Task StarboardChannel(SocketChannel channel)
         {
             await Context.Message.ReplyAsync(string.Format(Constants.BotSetStarboardChannelMessage, MentionUtils.MentionChannel(channel.Id)));
@@ -141,6 +145,35 @@ namespace WhosThatPokemon.Module.Prefix
             });
 
             await _logger.CommandUsedLogAsync("GlobalPrefixModule", "shadowping", Context.Guild.Id, Context.Channel.Id, Context.User.Id).ConfigureAwait(false);
+        }
+
+        [Command("afk")]
+        [RequireBotPermission(ChannelPermission.SendMessages)]
+        public async Task SetUserAfk()
+        {
+            await Context.Message.ReplyAsync(string.Format(Constants.BotUserAfkMessage, Context.User.Id));
+            _ = Task.Run(async () =>
+            {
+                DiscordUser user = await _userRepository.GetUserByUserIdAsync(Context.User.Id).ConfigureAwait(false);
+                if (user == null)
+                {
+                    user = new DiscordUser()
+                    {
+                        DiscordUserId = Context.User.Id,
+                        IsPremiumUser = false,
+                        IsUserAfk = true,
+                        PokemonCollection = null
+                    };
+                    await _userRepository.InsertUserAsync(user);
+                    await Context.Channel.SendMessageAsync(string.Format(Constants.BotUserAfkWithNoCollection, Context.User.Id));
+                }
+                else
+                {
+                    await _userRepository.UpdateUserAfkStatusAsync(user).ConfigureAwait(false);
+                    await Context.Channel.SendMessageAsync(string.Format(Constants.BotUserAfkWithCollection, Context.User.Id));
+                }
+            });
+            await _logger.CommandUsedLogAsync("GlobalPrefixModule", "SetUserAfk", Context.Guild.Id, Context.Channel.Id, Context.User.Id).ConfigureAwait(false);
         }
 
         [Command("premium")]

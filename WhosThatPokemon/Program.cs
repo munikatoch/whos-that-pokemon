@@ -5,6 +5,8 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ML;
 using MongoDB.Driver;
+using Polly.Extensions.Http;
+using Polly;
 using Serilog;
 using Serilog.Exceptions;
 using WhosThatPokemon.Config;
@@ -82,8 +84,8 @@ namespace WhosThatPokemon
 
             collection.AddHttpClient(HttpClientType.Pokemon.ToString(), x =>
             {
-                x.Timeout = TimeSpan.FromSeconds(3);
-            });
+                x.Timeout = TimeSpan.FromSeconds(2);
+            }).AddPolicyHandler(GetRetryPolicy());
 
             return collection.BuildServiceProvider();
         }
@@ -93,6 +95,13 @@ namespace WhosThatPokemon
             return new LoggerConfiguration().WriteTo.File(Constants.Logfile, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 3)
                 .Enrich.WithExceptionDetails()
                 .CreateLogger();
+        }
+
+        private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+        {
+            return HttpPolicyExtensions.HandleTransientHttpError()
+                .OrResult(msg => !msg.IsSuccessStatusCode)
+                .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(2));
         }
     }
 }

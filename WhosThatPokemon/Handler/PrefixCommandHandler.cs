@@ -152,7 +152,7 @@ namespace WhosThatPokemon.Handler
                                     roleMention = MentionUtils.MentionRole(server.RegionalPingId);
                                 }
                             }
-                            List<DiscordUser> users = await _userRepository.GetPokemonCollectingUser(predictedPokemon.PokemonId);
+                            List<DiscordUser> users = await _userRepository.GetPokemonCollectingUserAsync(predictedPokemon.PokemonId);
                             if (users != null && users.Count > 0)
                             {
                                 StringBuilder sb = new StringBuilder("**Collections: **");
@@ -160,7 +160,7 @@ namespace WhosThatPokemon.Handler
                                 foreach (DiscordUser user in users)
                                 {
                                     var guildUser = guild.GetUser(user.DiscordUserId);
-                                    if (guildUser != null)
+                                    if (guildUser != null && !user.IsUserAfk)
                                     {
                                         sb.Append(MentionUtils.MentionUser(user.DiscordUserId) + " ");
                                     }

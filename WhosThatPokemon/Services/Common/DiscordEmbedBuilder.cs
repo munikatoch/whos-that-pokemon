@@ -47,6 +47,7 @@ namespace WhosThatPokemon.Services.Common
             embedBuilder.AddField("[rareping, rp]", "Set rare ping role");
             embedBuilder.AddField("[regionalping, rgp]", "Set regional ping role");
             embedBuilder.AddField("[shadowping, sp]", "Set shadow ping role");
+            embedBuilder.AddField("[afk]", "Set user afk to stop collection ping");
             embedBuilder.AddField("[starboard, sb]", "Set starboard channel");
             embedBuilder.AddField("[premium, patreon]", "Donate to whos that pokemon bot");
 

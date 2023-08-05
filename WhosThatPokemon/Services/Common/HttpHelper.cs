@@ -47,7 +47,7 @@ namespace WhosThatPokemon.Services.Common
                 }
                 catch (Exception ex)
                 {
-                    await _appLogger.ExceptionLogAsync("HttpHelper: GetImageContent", ex).ConfigureAwait(false);
+                    await _appLogger.ExceptionLogAsync($"HttpHelper: GetImageContent {url}", ex).ConfigureAwait(false);
                 }
             }
             return content;

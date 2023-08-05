@@ -31,6 +31,9 @@ namespace WhosThatPokemon.Model
         public static readonly string BotSetStarboardChannelMessage = "Starboard channel set to {0}";
         public static readonly string BotListCollectionMessage = "Fetching your Collection";
         public static readonly string BotPredictPokemonMessage = "This will accurately predict pokemons from pokemon bot only";
+        public static readonly string BotUserAfkMessage = "Setting {0} afk";
+        public static readonly string BotUserAfkWithNoCollection = "{0} set as afk but no collection found. Use help command to check how to add collection";
+        public static readonly string BotUserAfkWithCollection = "{0} set as afk";
 
 
         public static readonly string DatabaseDeleteServerMessage = "Server Deleted Successfully: Source {}";
