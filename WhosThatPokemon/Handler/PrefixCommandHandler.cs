@@ -165,7 +165,10 @@ namespace WhosThatPokemon.Handler
                                         sb.Append(MentionUtils.MentionUser(user.DiscordUserId) + " ");
                                     }
                                 }
-                                roleMention = sb.ToString();
+                                if(!sb.Equals("**Collections: **"))
+                                {
+                                    roleMention = sb.ToString();
+                                }
                             }
                         }
                         await message.ReplyAsync(roleMention, embed: predictedPokemonResult.PokemonEmbed);

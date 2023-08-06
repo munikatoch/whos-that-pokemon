@@ -151,7 +151,7 @@ namespace WhosThatPokemon.Module.Prefix
         [RequireBotPermission(ChannelPermission.SendMessages)]
         public async Task SetUserAfk()
         {
-            await Context.Message.ReplyAsync(string.Format(Constants.BotUserAfkMessage, Context.User.Id));
+            await Context.Message.ReplyAsync(string.Format(Constants.BotUserAfkMessage, Context.User.Username));
             _ = Task.Run(async () =>
             {
                 DiscordUser user = await _userRepository.GetUserByUserIdAsync(Context.User.Id).ConfigureAwait(false);
@@ -165,12 +165,19 @@ namespace WhosThatPokemon.Module.Prefix
                         PokemonCollection = null
                     };
                     await _userRepository.InsertUserAsync(user);
-                    await Context.Channel.SendMessageAsync(string.Format(Constants.BotUserAfkWithNoCollection, Context.User.Id));
+                    await Context.Channel.SendMessageAsync(string.Format(Constants.BotUserAfkWithNoCollection, Context.User.Mention));
                 }
                 else
                 {
                     await _userRepository.UpdateUserAfkStatusAsync(user).ConfigureAwait(false);
-                    await Context.Channel.SendMessageAsync(string.Format(Constants.BotUserAfkWithCollection, Context.User.Id));
+                    if(user.IsUserAfk)
+                    {
+                        await Context.Channel.SendMessageAsync(string.Format(Constants.BotUserRemovedAfkWithCollection, Context.User.Mention));
+                    }
+                    else
+                    {
+                        await Context.Channel.SendMessageAsync(string.Format(Constants.BotUserSetAfkWithCollection, Context.User.Mention));
+                    }
                 }
             });
             await _logger.CommandUsedLogAsync("GlobalPrefixModule", "SetUserAfk", Context.Guild.Id, Context.Channel.Id, Context.User.Id).ConfigureAwait(false);
