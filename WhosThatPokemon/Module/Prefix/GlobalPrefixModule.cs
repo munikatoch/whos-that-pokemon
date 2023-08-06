@@ -170,7 +170,7 @@ namespace WhosThatPokemon.Module.Prefix
                 else
                 {
                     await _userRepository.UpdateUserAfkStatusAsync(user).ConfigureAwait(false);
-                    if(user.IsUserAfk)
+                    if (user.IsUserAfk)
                     {
                         await Context.Channel.SendMessageAsync(string.Format(Constants.BotUserRemovedAfkWithCollection, Context.User.Mention));
                     }
