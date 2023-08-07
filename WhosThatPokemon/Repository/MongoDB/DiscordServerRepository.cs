@@ -36,7 +36,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
             catch (Exception ex)
             {
-                await _logger.ExceptionLogAsync("DiscordServerRepository.InsertServerAsync", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"DiscordServerRepository.InsertServerAsync GuildId: {guildId}", ex).ConfigureAwait(false);
             }
         }
 
@@ -55,7 +55,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
             catch (Exception ex)
             {
-                await _logger.ExceptionLogAsync("DiscordServerRepository.DeleteServerAsync", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"DiscordServerRepository.DeleteServerAsync GuildId: {guildId}", ex).ConfigureAwait(false);
             }
         }
 
@@ -89,7 +89,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
             catch (Exception ex)
             {
-                await _logger.ExceptionLogAsync("DiscordServerRepository.UpdateRole", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"DiscordServerRepository.UpdateRole GuildId: {guildId} RoleType: {roleType} RoleId: {roleId}", ex).ConfigureAwait(false);
             }
         }
 
@@ -102,7 +102,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
             catch (Exception ex)
             {
-                await _logger.ExceptionLogAsync("DiscordServerRepository.GetMentionRoles", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"DiscordServerRepository.GetMentionRoles GuildId: {guildId}", ex).ConfigureAwait(false);
             }
             return null;
         }
@@ -112,8 +112,11 @@ namespace WhosThatPokemon.Repository.MongoDB
             try
             {
                 FilterDefinition<DiscordServer> filter = Builders<DiscordServer>.Filter.Eq(x => x.ServerId, guildId);
-                UpdateDefinition<DiscordServer> updateDefinition;
-                updateDefinition = Builders<DiscordServer>.Update.Set(x => x.StarboardChannelId, channelId);
+                UpdateDefinition<DiscordServer> updateDefinition = null;
+                if(channelType == DiscordChannelType.Startboard)
+                {
+                    updateDefinition = Builders<DiscordServer>.Update.Set(x => x.StarboardChannelId, channelId);
+                }
                 UpdateResult updateResult = await _collection.UpdateOneAsync(filter, updateDefinition);
 
                 await _logger.FileLogAsync(new
@@ -125,7 +128,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
             catch (Exception ex)
             {
-                await _logger.ExceptionLogAsync("DiscordServerRepository.UpdateChannelAsync", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"DiscordServerRepository.UpdateChannelAsync GuildId: {guildId} ChannelType: {channelType} ChannelId: {channelId}", ex).ConfigureAwait(false);
             }
         }
     }

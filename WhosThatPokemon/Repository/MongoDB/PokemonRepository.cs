@@ -21,13 +21,13 @@ namespace WhosThatPokemon.Repository.MongoDB
             try
             {
                 pokemonsName = pokemonsName.Select(x => x.ToLower()).ToArray();
-                FilterDefinition<Pokemon> filter = Builders<Pokemon>.Filter.In(r => r.PokemonName, pokemonsName);
-                List<Pokemon> result = await _collection.Find(filter).ToListAsync();
+                var filter = Builders<Pokemon>.Search.Text(x => x.PokemonName, pokemonsName);
+                var result = _collection.Aggregate().Search(filter, indexName: "PokemonNameIdk", returnStoredSource: true).Limit(pokemonsName.Length).ToList();
                 return result;
             }
             catch (Exception ex)
             {
-                await _logger.ExceptionLogAsync("PokemonRepository.GetPokemonByName", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"PokemonRepository.GetPokemonByName Pokemon Names: {pokemonsName}", ex).ConfigureAwait(false);
             }
             return null;
         }
@@ -42,23 +42,23 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
             catch (Exception ex)
             {
-                await _logger.ExceptionLogAsync("PokemonRepository.GetPokemonByIds", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"PokemonRepository.GetPokemonByIds Pokemons Id: {pokemonsId}", ex).ConfigureAwait(false);
             }
             return null;
         }
 
-        public async Task<Pokemon> GetPokemonById(int pokemonsId, bool updateCount)
+        public async Task<Pokemon> GetPokemonById(int pokemonId, bool updateCount)
         {
             try
             {
-                FilterDefinition<Pokemon> filter = Builders<Pokemon>.Filter.Eq(r => r.PokemonId, pokemonsId);
+                FilterDefinition<Pokemon> filter = Builders<Pokemon>.Filter.Eq(r => r.PokemonId, pokemonId);
                 UpdateDefinition<Pokemon> update = Builders<Pokemon>.Update.Inc(r => r.SpawnCount, updateCount ? 1 : 0);
                 Pokemon result = await _collection.FindOneAndUpdateAsync(filter, update);
                 return result;
             }
             catch (Exception ex)
             {
-                await _logger.ExceptionLogAsync("PokemonRepository.GetPokemonById", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"PokemonRepository.GetPokemonById Pokemon Id: {pokemonId} Update Count: {updateCount}", ex).ConfigureAwait(false);
             }
             return null;
         }

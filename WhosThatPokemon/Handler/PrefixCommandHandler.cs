@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Serilog.Events;
 using System.Text;
@@ -84,6 +85,7 @@ namespace WhosThatPokemon.Handler
             }
             catch(Exception ex)
             {
+                await _logger.FileLogAsync(message, LogEventLevel.Error).ConfigureAwait(false);
                 await _logger.ExceptionLogAsync("PrefixCommandHandler.HandleCommandAsync", ex).ConfigureAwait(false);
             }
         }
@@ -185,7 +187,10 @@ namespace WhosThatPokemon.Handler
                 if (guild != null)
                 {
                     SocketGuildChannel channel = guild.GetChannel(channelId);
-                    if (channel is SocketTextChannel)
+
+                    bool hasSendMessagePermission = guild.GetUser(_client.CurrentUser.Id)?.GetPermissions(channel).SendMessages ?? false;
+
+                    if (hasSendMessagePermission && channel is SocketTextChannel)
                     {
                         SocketTextChannel textChannel = (SocketTextChannel)channel;
                         Embed embed = DiscordEmbedBuilder.BuildStartboardEmbed(message, message.GetJumpUrl());

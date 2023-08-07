@@ -1,5 +1,7 @@
 ﻿using Discord;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Search;
 using Serilog.Events;
 using WhosThatPokemon.Interfaces.Config;
 using WhosThatPokemon.Interfaces.Logger;
@@ -37,7 +39,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
             else
             {
-                pokemons = await UpdateUserCollectionAsync(user, pokemonNames, userId);
+                pokemons = await UpdateUserCollectionAsync(user, pokemonNames);
             }
             return pokemons;
         }
@@ -62,7 +64,7 @@ namespace WhosThatPokemon.Repository.MongoDB
                 }
                 catch (Exception ex)
                 {
-                    await _logger.ExceptionLogAsync("UserRepository.RemoveUserPokemonCollection", ex).ConfigureAwait(false);
+                    await _logger.ExceptionLogAsync($"UserRepository.RemoveUserPokemonCollection UserId: {userId} Collection: {collection}", ex).ConfigureAwait(false);
                     throw;
                 }
             }
@@ -79,7 +81,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
             catch (Exception ex)
             {
-                await _logger.ExceptionLogAsync("UserRepository.GetUserByUserId", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"UserRepository.GetUserByUserId UserId: {userId}", ex).ConfigureAwait(false);
             }
             return null;
         }
@@ -88,12 +90,27 @@ namespace WhosThatPokemon.Repository.MongoDB
         {
             try
             {
-                var result = await (await _collection.FindAsync(x => x.PokemonCollection != null && x.PokemonCollection.Contains(pokemonId))).ToListAsync();
-                return result;
+                var equalOperator = new Dictionary<string, object>
+                {
+                    { "value", pokemonId },
+                    { "path", "pokemon_id" }
+                };
+
+                var searchOperator = new Dictionary<string, object>
+                {
+                    { "index", "PokemonCollectionIdx" },
+                    { "equals", equalOperator }
+                };
+
+                BsonDocument element = new BsonDocument(searchOperator);
+
+                var filter = new BsonDocumentSearchDefinition<DiscordUser>(element);
+
+                var result = _collection.Aggregate().Search(filter, returnStoredSource: true).ToList();
             }
             catch(Exception ex)
             {
-                await _logger.ExceptionLogAsync("UserRepository.UpdateUserCollection", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"UserRepository.GetPokemonCollectingUser PokemonId : {pokemonId}", ex).ConfigureAwait(false);
             }
             return null;
         }
@@ -109,13 +126,20 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
             catch (Exception ex)
             {
-                await _logger.ExceptionLogAsync("UserRepository.UpdateUserAfkStatusAsync", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"UserRepository.UpdateUserAfkStatusAsync User ID: {user.DiscordUserId} Afk Status: {!user.IsUserAfk}", ex).ConfigureAwait(false);
             }
         }
 
         public async Task InsertUserAsync(DiscordUser user)
         {
-            await _collection.InsertOneAsync(user);
+            try
+            {
+                await _collection.InsertOneAsync(user);
+            }
+            catch(Exception ex)
+            {
+                await _logger.ExceptionLogAsync($"UserRepository.InsertUserAsync User ID: {user.DiscordUserId}", ex).ConfigureAwait(false);
+            }
         }
 
         private async Task<List<Pokemon>> CreatePokemonCollectionAsync(DiscordUser user, string[] pokemonNames)
@@ -141,7 +165,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             return pokemonIds;
         }
 
-        private async Task<List<Pokemon>> UpdateUserCollectionAsync(DiscordUser user, string[] pokemonNames, ulong userId)
+        private async Task<List<Pokemon>> UpdateUserCollectionAsync(DiscordUser user, string[] pokemonNames)
         {
             List<Pokemon> pokemons = await CreatePokemonCollectionAsync(user, pokemonNames);
 
@@ -150,7 +174,7 @@ namespace WhosThatPokemon.Repository.MongoDB
                 try
                 {
                     int[] pokemonIds = pokemons.Select(x => x.PokemonId).ToArray();
-                    FilterDefinition<DiscordUser> userIdFilter = Builders<DiscordUser>.Filter.Eq(u => u.DiscordUserId, userId);
+                    FilterDefinition<DiscordUser> userIdFilter = Builders<DiscordUser>.Filter.Eq(u => u.DiscordUserId, user.DiscordUserId);
 
                     UpdateDefinition<DiscordUser> updatedCollection = Builders<DiscordUser>.Update.PushEach(x => x.PokemonCollection, pokemonIds);
 
@@ -159,7 +183,7 @@ namespace WhosThatPokemon.Repository.MongoDB
                 }
                 catch (Exception ex)
                 {
-                    await _logger.ExceptionLogAsync("UserRepository.UpdateUserCollection", ex).ConfigureAwait(false);
+                    await _logger.ExceptionLogAsync($"UserRepository.UpdateUserCollection PokemonNames: {pokemonNames} UserId: {user.DiscordUserId}", ex).ConfigureAwait(false);
                 }
             }
             return pokemons;
@@ -187,7 +211,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             }
             catch (Exception ex)
             {
-                await _logger.ExceptionLogAsync("UserRepository.InsertUser", ex).ConfigureAwait(false);
+                await _logger.ExceptionLogAsync($"UserRepository.InsertUserWithCollection PokemonNames: {pokemonNames} UserId: {userId}", ex).ConfigureAwait(false);
             }
             return pokemons;
         }
