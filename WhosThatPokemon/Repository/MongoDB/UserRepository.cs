@@ -99,14 +99,16 @@ namespace WhosThatPokemon.Repository.MongoDB
                 var searchOperator = new Dictionary<string, object>
                 {
                     { "index", "PokemonCollectionIdx" },
-                    { "equals", equalOperator }
+                    { "equals", equalOperator },
+                    { "returnStoredSource", true }
                 };
 
                 BsonDocument element = new BsonDocument(searchOperator);
 
                 var filter = new BsonDocumentSearchDefinition<DiscordUser>(element);
 
-                var result = _collection.Aggregate().Search(filter, returnStoredSource: true).ToList();
+                var result = _collection.Aggregate().Search(filter).ToList();
+                return result;
             }
             catch(Exception ex)
             {
