@@ -21,7 +21,7 @@ namespace WhosThatPokemon.Repository.MongoDB
             try
             {
                 pokemonsName = pokemonsName.Select(x => x.ToLower()).ToArray();
-                var filter = Builders<Pokemon>.Search.Text(x => x.PokemonName, pokemonsName);
+                var filter = Builders<Pokemon>.Search.Phrase(x => x.PokemonName, pokemonsName);
                 var result = _collection.Aggregate().Search(filter, indexName: "PokemonNameIdk", returnStoredSource: true).Limit(pokemonsName.Length).ToList();
                 return result;
             }
